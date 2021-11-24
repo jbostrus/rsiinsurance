@@ -29,16 +29,13 @@
 
     function fetchVehicleDetailPageHTML(asURL, akWidget) {
         var http_req = new XMLHttpRequest();
-        
         http_req.open('GET', asURL, true);
         http_req.onload = function(args) {
             var HTMLData;
-            if (args.target)
-                HTMLData = args.target;
-            else
-                HTMLData = args;
+            if (args.target) HTMLData = args.target;
+            else HTMLData = args;
             handleVehicleDetailPage(HTMLData, asURL, akWidget);
-            };
+        };
         http_req.send('');
     }
 
@@ -70,9 +67,7 @@
             GM_log('parsed object:');
             GM_log(html_dom);
         }
-
         var sInsuranceDuration = parseInsurance(html_dom);
-
         if (sInsuranceDuration !== '') injectInsurance(sInsuranceDuration, akBaseWidget);
     }
 
@@ -128,7 +123,7 @@
         if (debug) {
             GM_log('handleInsert()');
             GM_log(event);
-        }    
+        }
         var strVehicleURL = getVehicleDetailPageUrl(event.target);
         if (debug) GM_log(strVehicleURL);
         if (strVehicleURL) fetchVehicleDetailPageHTML(strVehicleURL, event.target);
