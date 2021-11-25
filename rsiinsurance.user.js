@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         RSI Insurance Panel Widget
 // @namespace    https://robertsspaceindustries.com/
-// @version      0.2
+// @version      0.3
 // @description  Populates a widget tag on the store front showing the insurance duration of vehicles
 // @author       Jonathan Ostrus
 // @match        https://robertsspaceindustries.com/store/pledge/*
@@ -17,6 +17,7 @@
 
     var debug = false;
     //var debug = true;
+    var m_sNoInsurance = 'N/A';
 
     function GetVehicleList(akBaseNode) {
         return akBaseNode.querySelectorAll('div.BrowseListing__list > div.CardItem, li.ship-item');
@@ -26,6 +27,12 @@
         var vehicleLink = Array.from(akBaseWidget.querySelectorAll('a')).find(el => (el.textContent === 'More Info' || el.textContent === 'View  Specs and options'));
         if (vehicleLink) return vehicleLink.href;
         else return '';
+    }
+
+    function ValidateVehicleDetailPage(asURL) {
+        // sanity check it's a page we care about
+        if (asURL.indexOf('pledge/Standalone-Ships') >= 0 || asURL.indexOf('pledge/Packages') >= 0) return true;
+        return false;
     }
 
     function FetchVehicleDetailPageHTML(asURL, akWidget) {
@@ -64,7 +71,7 @@
             GM_log(parsedData);
         }
         var sInsuranceDuration = ParseInsurance(parsedData);
-        if (sInsuranceDuration === '') sInsuranceDuration = 'N/A';
+        if (sInsuranceDuration === '') sInsuranceDuration = m_sNoInsurance;
         if (debug) GM_log('Detected insurance: ' + sInsuranceDuration);
         if (sInsuranceDuration !== '') InjectInsurance(sInsuranceDuration, akBaseWidget);
     }
@@ -81,7 +88,6 @@
     }
 
     function InjectInsurance(asDuration, akWidget) {
-        var insuranceElementType = '';
         var baseWidgetContainer, baseTagContainer, insuranceTag, insuranceTag2;
         var type = 0;
         if (debug) {
@@ -110,6 +116,7 @@
             baseTagContainer.appendChild(insuranceTag);
         }
         else if (type == 2) {
+            if (asDuration === m_sNoInsurance) return;
             baseTagContainer = akWidget.querySelector('div.WidgetTags');
             if (!baseTagContainer) {
                 baseTagContainer = document.createElement('div');
@@ -130,7 +137,7 @@
         var url;
         for (var i=0; i<nodeList.length; i++) {
             url = GetVehicleDetailPageUrl(nodeList[i]);
-            FetchVehicleDetailPageHTML(url, nodeList[i]);
+            if (ValidateVehicleDetailPage(url)) FetchVehicleDetailPageHTML(url, nodeList[i]);
         }
     }
 
@@ -170,7 +177,11 @@
         var strVehicleURL;
         strVehicleURL = GetVehicleDetailPageUrl(akEvent.target);
         if (debug) GM_log(strVehicleURL);
-        if (strVehicleURL) FetchVehicleDetailPageHTML(strVehicleURL, akEvent.target);
+        if (strVehicleURL) {
+            if (ValidateVehicleDetailPage(strVehicleURL)) {
+                FetchVehicleDetailPageHTML(strVehicleURL, akEvent.target);
+            }
+        }
     }
 
     // register for the initial store population for packages and standalone ship card style
