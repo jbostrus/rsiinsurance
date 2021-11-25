@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         RSI Insurance Panel Widget
 // @namespace    https://robertsspaceindustries.com/
-// @version      0.3
+// @version      0.4
 // @description  Populates a widget tag on the store front showing the insurance duration of vehicles
 // @author       Jonathan Ostrus
 // @match        https://robertsspaceindustries.com/store/pledge/*
@@ -31,7 +31,7 @@
 
     function ValidateVehicleDetailPage(asURL) {
         // sanity check it's a page we care about
-        if (asURL.indexOf('pledge/Standalone-Ships') >= 0 || asURL.indexOf('pledge/Packages') >= 0) return true;
+        if (asURL.indexOf('pledge/Standalone-Ships') >= 0 || asURL.indexOf('pledge/Packages') >= 0 || asURL.indexOf('pledge/Packs') >= 0) return true;
         return false;
     }
 
