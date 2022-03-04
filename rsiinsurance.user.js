@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         RSI Insurance Panel Widget
 // @namespace    https://robertsspaceindustries.com/
-// @version      0.4
+// @version      0.5
 // @description  Populates a widget tag on the store front showing the insurance duration of vehicles
 // @author       Jonathan Ostrus
 // @match        https://robertsspaceindustries.com/store/pledge/*
@@ -117,19 +117,60 @@
         }
         else if (type == 2) {
             if (asDuration === m_sNoInsurance) return;
+            baseWidgetContainer = akWidget.querySelector('div.ItemWidget-image');
             baseTagContainer = akWidget.querySelector('div.WidgetTags');
             if (!baseTagContainer) {
                 baseTagContainer = document.createElement('div');
                 baseTagContainer.setAttribute('class', 'WidgetTags');
-                baseWidgetContainer = akWidget.querySelector('div.ItemWidget-image');
                 baseWidgetContainer.appendChild(baseTagContainer);
             }
             insuranceTag = document.createElement('p');
             insuranceTag.setAttribute('class', 'WidgetTags__text');
             insuranceTag.style['background-color'] = '#0962bf';
             insuranceTag.innerText = asDuration;
+            if (asDuration === "Lifetime Insurance") {
+                baseWidgetContainer.parentNode.parentNode.parentNode.classList.add("LTI");
+            }
+
             baseTagContainer.appendChild(insuranceTag);
         }
+    }
+
+    function HideNonLTICards() {
+        var widgetContainer = document.querySelector('div.BrowseListing__list');
+        var childNodes = widgetContainer.childNodes;
+        for (var i=0; i<childNodes.length; i++) {
+            if (childNodes[i].className.indexOf('LTI') < 0) childNodes[i].style.display = 'none';
+        }
+    }
+
+    function ShowAllCards() {
+        var widgetContainer = document.querySelector('div.BrowseListing__list');
+        var childNodes = widgetContainer.childNodes;
+        for (var i=0; i<childNodes.length; i++) {
+            childNodes[i].style.display = '';
+        }
+    }
+
+    function ToggleLTICards(abShowLTIOnly) {
+        if (abShowLTIOnly) HideNonLTICards();
+        else ShowAllCards();
+    }
+
+    function AddLTICheckbox() {
+        var cardContainer = document.querySelector('div.BrowseListing');
+        var checkboxContainer = document.createElement('div');
+        var cbElement = document.createElement('input');
+        cbElement.setAttribute('type', 'checkbox');
+        cbElement.setAttribute('id', 'LTIcb');
+        var cbLabel = document.createElement('label');
+        cbLabel.style.display = 'inline';
+        cbLabel.setAttribute('for', 'LTIcb');
+        cbLabel.innerText = 'LTI Only';
+        cbElement.onclick = function () { ToggleLTICards(this.checked); }
+        cardContainer.insertBefore(checkboxContainer, cardContainer.firstChild);
+        checkboxContainer.appendChild(cbElement);
+        checkboxContainer.appendChild(cbLabel);
     }
 
     function CheckNodes(akBaseNode) {
@@ -152,6 +193,7 @@
         if (baseContainer) {
             UnRegisterListener(rootContainer, HandleStoreCardStartup);
             RegisterListener(baseContainer, HandleCardInsert);
+            AddLTICheckbox();
         }
     }
 
