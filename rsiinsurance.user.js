@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name         RSI Insurance Panel Widget
 // @namespace    https://robertsspaceindustries.com/
-// @version      0.5
+// @version      0.6
 // @description  Populates a widget tag on the store front showing the insurance duration of vehicles
 // @author       Jonathan Ostrus
 // @match        https://robertsspaceindustries.com/store/pledge/*
-// @match        https://robertsspaceindustries.com/pledge/ships
+// @match        https://robertsspaceindustries.com/pledge/ships*
 // @icon         https://www.google.com/s2/favicons?domain=robertsspaceindustries.com
 // @grant        none
 // @updateURL    https://github.com/jbostrus/rsiinsurance/raw/main/rsiinsurance.user.js
@@ -16,7 +16,6 @@
     var GM_log; if (typeof GM_log === 'undefined') { GM_log = function (str) { console.log(str); }; }
 
     var debug = false;
-    //var debug = true;
     var m_sNoInsurance = 'N/A';
 
     function GetVehicleList(akBaseNode) {
@@ -31,7 +30,7 @@
 
     function ValidateVehicleDetailPage(asURL) {
         // sanity check it's a page we care about
-        if (asURL.indexOf('pledge/Standalone-Ships') >= 0 || asURL.indexOf('pledge/Packages') >= 0 || asURL.indexOf('pledge/Packs') >= 0) return true;
+        if (asURL.indexOf('pledge/ships') >= 0 || asURL.indexOf('pledge/Standalone-Ships') >= 0 || asURL.indexOf('pledge/Packages') >= 0 || asURL.indexOf('pledge/Packs') >= 0) return true;
         return false;
     }
 
@@ -175,6 +174,10 @@
 
     function CheckNodes(akBaseNode) {
         var nodeList = GetVehicleList(akBaseNode);
+		if (debug) {
+			GM_log('Found vehicle list:');
+			GM_log(nodeList);
+		}
         var url;
         for (var i=0; i<nodeList.length; i++) {
             url = GetVehicleDetailPageUrl(nodeList[i]);
@@ -228,12 +231,14 @@
 
     // register for the initial store population for packages and standalone ship card style
     if (rootContainer) {
+        if (debug) GM_log('Found normal pledge store cards');
         RegisterListener(rootContainer, HandleStoreCardStartup);
         // trigger a check in case the dom loaded while we were registering
         HandleStoreCardStartup();
     }
     // if not try the search style
     else if (searchContainer) {
+        if (debug) GM_log('Found detailed pledge search page');
         RegisterListener(searchContainer, HandleSearchContainerInsert);
     }
 
