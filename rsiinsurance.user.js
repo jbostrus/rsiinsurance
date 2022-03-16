@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         RSI Insurance Panel Widget
 // @namespace    https://robertsspaceindustries.com/
-// @version      0.6
+// @version      0.7
 // @description  Populates a widget tag on the store front showing the insurance duration of vehicles
 // @author       Jonathan Ostrus
 // @match        https://robertsspaceindustries.com/store/pledge/*
@@ -128,7 +128,7 @@
             insuranceTag.style['background-color'] = '#0962bf';
             insuranceTag.innerText = asDuration;
             if (asDuration === "Lifetime Insurance") {
-                baseWidgetContainer.parentNode.parentNode.parentNode.classList.add("LTI");
+                baseWidgetContainer.parentNode.classList.add("LTI");
             }
 
             baseTagContainer.appendChild(insuranceTag);
